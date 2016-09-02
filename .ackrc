@@ -1,0 +1,13 @@
+#
+# Ack Helper
+#
+
+--break
+--color
+
+--smart-case
+
+--sort-files
+
+--ignore-dir=var/
+

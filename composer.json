@@ -1,0 +1,13 @@
+{
+    "name": "edoceo/any2web",
+    "description": "Convert anything to web formats",
+    "authors": [
+        {
+            "name": "edoceo",
+            "email": "code@edoceo.com"
+        }
+    ],
+    "require": {
+		"edoceo/radix": "dev-master"
+    }
+}
