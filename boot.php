@@ -22,4 +22,4 @@ require_once(APP_ROOT . '/lib/Output.php');
 
 require_once(APP_ROOT . '/vendor/autoload.php');
 
-SQL::init(sprintf('sqlite:%s/etc/sqlite.sdb', APP_ROOT));
+SQL::init(sprintf('sqlite:%s/etc/a2w.sdb', APP_ROOT));
