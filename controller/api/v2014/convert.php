@@ -16,13 +16,12 @@ _inflate_input();
 $J = new Job();
 $S = $J->readSource();
 
-//try {
-//	$S = new Source();
+try {
 	$S->read();
 	$S->mime();
-//} catch (Exception $e) {
-//	_bail('400', 'E#022: Invalid Source Document Provided: ' . $e->getMessage());
-//}
+} catch (\Exception $e) {
+	_bail('400', 'E#022: Invalid Source Document Provided: ' . $e->getMessage());
+}
 
 $O = $J->makeOutput($S);
 file_put_contents(APP_ROOT . '/var/output.obj', print_r($O, true));
@@ -46,8 +45,6 @@ case 'application/vnd.oasis.opendocument.text': // odt
 	// to PDF
 	// to PNGs
 	// to ZIP
-
-	// $out = sprintf('/tmp/any2web/%s.pdf', preg_replace('/\.odt$/i', null, $S->_name));
 
 	// $cmd = sprintf('odt2pdf.sh %s %s', APP_ROOT, escapeshellarg($S->_path), escapeshellarg($out));
 	// $log = sprintf('%s/var/odt2pdf.log', APP_ROOT);
@@ -81,11 +78,9 @@ case 'application/vnd.oasis.opendocument.text': // odt
 	break;
 
 case 'application/vnd.ms-powerpoint': // ppt
+case 'application/vnd.oasis.opendocument.presentation': // odp
 case 'application/vnd.openxmlformats-officedocument.presentationml.presentation': // pptx
 
-	// $s = $S->_path;
-	// $o = preg_replace('/\.\w+$/', null, $s) . '.pdf';
-	// $O->path = APP_ROOT . '/var/' . $S->hash . '/' . $O->name . '.pdf';
 	$O->file = sprintf('%s/%s.pdf', $J->getPath(), $S->getName());
 
 	$cmd = sprintf('ppt2pdf.sh %s %s', escapeshellarg($S->getFile()), escapeshellarg($O->file));
@@ -119,37 +114,33 @@ case 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
 
 	break;
 
+case 'application/vnd.oasis.opendocument.spreadsheet': // ods
 case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': // xlsx
 
 	$old = $S->_path;
 	$new = sprintf('/tmp/any2web/%s', $S->_name);
 	move_uploaded_file($old, $new);
 	$S->_path = $new;
-	$out = sprintf('/tmp/any2web/%s', preg_replace('/\.xlsx$/i', '.pdf', $S->_name));
+	$pdf_file = sprintf('/tmp/any2web/%s', preg_replace('/\.xlsx$/i', '.pdf', $S->_name));
 
 	$cmd = sprintf('%s/bin/xls2pdf.sh %s %s', APP_ROOT, escapeshellarg($S->_path), escapeshellarg($out));
 	$log = sprintf('%s/var/xls2pdf.log', APP_ROOT);
+	_cmd_log($cmd, $log);
 
-	$buf = shell_exec("$cmd 2>&1");
-
-	if (!is_file($out)) {
+	if (!is_file($pdf_file)) {
 		echo "cmd:$cmd\n";
 		echo "buf:$buf\n";
 		die("Failed to Process: " . basename($S->_name));
 	}
 
-	_send_file($out);
-
-	// unlink($old);
-	_unlink($S->_path);
-	_unlink($out);
+	_send_file($pdf_file);
 
 	break;
 
 case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': // docx
 
 	$src_file = $S->getFile();
-	$pdf_file = preg_replace('/\.\w+$/', '.pdf', $src_file);
+	$pdf_file = sprintf('%s/%s.pdf', $J->getPath(), $S->getName());
 
 	$cmd = sprintf('doc2pdf.sh %s %s', escapeshellarg($src_file), escapeshellarg($pdf_file));
 	$log = sprintf('%s/doc2pdf.log', $J->getPath());
@@ -168,37 +159,40 @@ case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 
 	case 'image/png':
 
 		$png_file = sprintf('%s/%s.png', $J->getPath(), $S->getName());
-		$zip_file = sprintf('%s/%s.zip', $J->getPath(), $S->getName());
 
 		$cmd = array();
 		$cmd[] = 'pdf2png.sh';
 		$cmd[] = escapeshellarg($pdf_file);
+		$cmd[] = escapeshellarg($png_file);
 
-		switch ($O->pack) {
-		case 'image/png': // Tall Image
-		case 'image/png+tall': // Tall Image
-			$cmd[] = escapeshellarg($png_file);
-			$cmd[] = 'png-v';
-			break;
-		case 'image/png+wide': // Wide Image
-			$cmd[] = escapeshellarg($png_file);
-			$cmd[] = 'png-h';
-			break;
-		case 'application/zip':
-			$cmd[] = escapeshellarg($zip_file);
-			$cmd[] = 'png-h';
-			break;
-		}
+		//switch ($O->mime) {
+		//case 'image/png': // Tall Image
+		//case 'image/png+tall': // Tall Image
+		//	$cmd[] = escapeshellarg($png_file);
+		//	$cmd[] = 'png-v';
+		//	break;
+		//case 'image/png+wide': // Wide Image
+		//	$cmd[] = escapeshellarg($png_file);
+		//	$cmd[] = 'png-h';
+		//	break;
+		//case 'application/zip':
+		//	$cmd[] = escapeshellarg($zip_file);
+		//	$cmd[] = 'zip';
+		//	break;
+		//default:
+		//	throw new \Exception("Invalid '{$O->pack}' Pack");
+		//}
 
 		$log = sprintf('%s/pdf2png.log', $J->getPath());
 		_cmd_log($cmd, $log);
 
-		// = APP_ROOT . '/var/' . $O->hash . '/' . preg_replace('/\.\w+$/', '.zip', $S->_name);
-		// $zip_file = preg_replace('/\.png$/', '.zip', $png_file);
-		// $O->file = $zip_file;
-		// $O->extn = 'zip';
-		// $O->mime = 'application/zip; charset=binary';
-		// _send_output($O);
+		$O->file = preg_replace('/\.pdf$/', '.zip', $pdf_file);
+		$O->mime = 'application/zip';
+
+		if (is_file($O->file)) {
+			_send_output($O);
+		}
+
 	}
 
 	break;
