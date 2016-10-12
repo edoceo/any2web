@@ -13,53 +13,47 @@ class MIME
 {
 	private static $_extn_to_mime = array(
 		'bmp'  => 'image/bmp',
+		'html' => 'text/html',
 		'pbm'  => 'image/x-portable-bitmap',
 		'pdf'  => 'application/pdf',
 		'png'  => 'image/png',
 		'ppt'  => 'application/vnd.ms-powerpoint',
 		'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-		'tif'  => 'image/tiff',
 		'tiff' => 'image/tiff',
+		'txt'  => 'text/plain',
 		'webp' => 'image/webp',
-	);
-
-	private static $_mime_to_extn = array(
-		'application/pdf'         => 'pdf',
-		'image/bmp'               => 'bmp',
-		'image/png'               => 'png',
-		'image/tiff'              => 'tiff',
-		'image/webp'              => 'webp',
-		'image/x-portable-bitmap' => 'pbm',
 	);
 
 	/**
 		Returns File Extension based on MimeType
+		@param $mime a Mime Type
+		@return File Extension
 	*/
-	static function fileExtension($mt)
+	static function fileExtension($mime)
 	{
+		$r = array_search($mime, self::$_extn_to_mime);
 
-		if (!empty(self::$_mime_to_extn[$mt])) {
-			return self::$_mime_to_extn[$mt];
-		}
+        if (empty($r)) {
+        	$r = 'bin';
+        }
 
-		if (preg_match('/\/(\w{2,4})$/', $mt, $m)) {
-			return $m[1];
-		}
-
-		return 'bin';
+		return $r;
 
 	}
 
 	/**
+		@param $e File Extension
 		@return mime type string
 	*/
-	static function fromExtension($ex)
+	static function fromExtension($e)
 	{
-		if (!empty(self::$_extn_to_mime[$ex])) {
-			return $ex;
+		$r = self::$_extn_to_mime[$e];
+
+		if (empty($r)) {
+			$r = 'application/octet-stream';
 		}
 
-		return 'application/octet-stream';
+		return $r;
 
 	}
 

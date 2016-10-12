@@ -42,6 +42,9 @@ case 'application/pdf':
 
 case 'application/vnd.oasis.opendocument.text': // odt
 
+	//$pdf_file = sprintf('%s/%s.pdf', $J->getPath(), $S->getName());
+	//Convert::odt2pdf($S->getFile(), $pdf_file);
+
 	// to PDF
 	// to PNGs
 	// to ZIP
@@ -245,29 +248,33 @@ case 'text/html':
 case 'text/plain':
 case 'text/x-shellscript':
 
-	// $mime = 'image/png';
-
-	// print_r($S);
-	// $format = preg_match('/^(pdf|png|svg)$/', $_GET['format'], $m) ? $m[1] : 'pdf';
-	// $format = preg_match('/^(pdf|png|svg)$/', $_POST['format'], $m) ? $m[1] : $format;
-    // 
-	// switch ($format) {
-	// case 'pdf':
-	// 	$out = sprintf('%s/var/%s/output.pdf', APP_ROOT, $S->_hash);
-	// 	$mime = 'application/pdf';
-	// 	break;
-	// case 'png':
-	// default:
-	// 	$out = sprintf('%s/var/%s/output.png', APP_ROOT, $S->_hash);
-	// 	break;
-	// }
+	$src_file = $S->getFile();
+	$pdf_file = preg_replace('/\.\w{3,4}$/', '.pdf', $src_file);
+	$png_file = preg_replace('/\.\w{3,4}$/', '.png', $src_file);
 
 	// wkhtml
 	// $cmd = sprintf('%s/bin/uri2pdf-wkhtml.sh %s %s', APP_ROOT, escapeshellarg($S->_link), escapeshellarg($out));
 
 	// phantomjs
-	$cmd = sprintf('uri2pdf-phantom.sh %s %s', escapeshellarg($S->_path), escapeshellarg($O->path));
-	_cmd_log($cmd, 'uri2pdf.log');
+	$cmd = sprintf('uri2pdf-phantom.sh %s %s', escapeshellarg($src_file), escapeshellarg($png_file));
+	$log = sprintf('%s/uri2pdf.log', $J->getPath());
+	_cmd_log($cmd, $log);
+	$O->file = $png_file;
+
+	//$cmd = array();
+	//$cmd[] = 'pdf2png.sh';
+	//$cmd[] = escapeshellarg($pdf_file);
+	//$cmd[] = escapeshellarg($png_file);
+    //
+	//$log = sprintf('%s/pdf2png.log', $J->getPath());
+	//_cmd_log($cmd, $log);
+    //
+	//$O->file = preg_replace('/\.pdf$/', '.zip', $pdf_file);
+	//$O->mime = 'application/zip';
+    //
+	//if (is_file($O->file)) {
+	//	_send_output($O);
+	//}
 
 	_send_output($O);
 
@@ -310,8 +317,9 @@ function _cmd_log($cmd, $log)
 	}
 
 	$cmd = sprintf('%s/bin/%s', APP_ROOT, $cmd);
+	$cmd = "$cmd >$log 2>&1";
 
-	$buf = shell_exec("$cmd >$log 2>&1");
+	$buf = shell_exec($cmd);
 
 }
 

@@ -9,7 +9,7 @@ use Edoceo\Radix\Filter;
 
 class Source
 {
-	private $_path;
+	private $_path; // Path to Working Directory (from Job)
 	private $_file;
 
 	public $_name; // @todo fix this
@@ -168,7 +168,8 @@ class Source
 			break;
 
 		case 'PUT':
-			$this->_read_put();
+			$this->_name = basename($_GET['source']);
+			$source = $this->_read_put();
 			break;
 		}
 
@@ -200,37 +201,44 @@ class Source
 			$source_name = basename($source_name);
 			// $this->_name = basename($_FILES['source']['name']);
 			// $this->_mime = $_FILES['source']['type'];
+
+			$tmpfile = sprintf('%s/source.tmp', $this->_path);
+			$this->_fetch($source, $tmpfile);
+			$source = $tmpfile;
 		}
 
 		$this->_name = rawurlencode($source_name);
 		$this->_name = preg_replace('/\.\w{2,6}$/', null, $this->_name);
 
-		$this->_extn = preg_match('/\.(\w{2,6})$/', $source_name, $m) ? $m[1] : 'bin';
+		$this->_extn = preg_match('/\.(\w{2,6})$/', $source_name, $m) ? $m[1] : null;
 		$this->_extn = strtolower($this->_extn);
+
+		$this->_mime = MIME::fromFile($source);
+		if (empty($this->_extn)) {
+			$this->_extn = MIME::fileExtension($this->_mime);
+		}
 
 		$this->_file = sprintf('%s/%s.%s', $this->_path, $this->_name, $this->_extn);
 
-		//$this->_fetch($source, $this->_file);
+		//switch ($source_type) {
+		//case 'file':
+		move_uploaded_file($source, $this->_file);
+		//	break;
+		//case 'link':
+		//	$this->_fetch($source, $this->_file);
+		//}
 
-		switch ($source_type) {
-		case 'file':
-			move_uploaded_file($source, $this->_file);
-			break;
-		case 'link':
-			$this->_fetch($source, $this->_file);
-		}
+		$data = print_r($this, true);
+		$file = sprintf('%s/source.obj', $this->_path);
+		file_put_contents($file, $data);
 
 	}
 
 	/**
 	*/
-	private function _read_put()
+	private function _read_put_to_file()
 	{
-
-		$this->_name = basename($_GET['source']);
-
 		$tf = sprintf('%s/source.tmp', $this->_path);
-		$of = sprintf('%s/source.bin', $this->_path);
 
 		// Tmp File First
 		$ih = fopen('php://input', 'r');
@@ -242,7 +250,7 @@ class Source
 		fclose($ih);
 		fclose($oh);
 
-		rename($tf, $of);
+		return $tf;
 	}
 
 	/**
