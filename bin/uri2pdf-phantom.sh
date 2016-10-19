@@ -1,12 +1,16 @@
-#!/bin/bash
+#!/bin/bash -x
 #
 # @see http://phantomjs.org/download.html
+#
 
 set -o errexit
 set -o nounset
 
 f=$(readlink -f $0)
 d=$(dirname "$f")
+
+source_path=$(readlink -f "$1")
+target_path=$(readlink -f "$2")
 
 # $kind = strtolower($_GET['b']);
 # switch ($kind) {
@@ -24,7 +28,5 @@ d=$(dirname "$f")
 phantomjs \
 	--web-security=true \
 	"$d/uri2pdf-phantom.js" \
-	"$1" \
-	"$2"
-
-# 	' . $kind;
+	"$source_path" \
+	"$target_path"
