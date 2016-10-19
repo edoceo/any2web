@@ -55,45 +55,6 @@ class Source
 		// }
 	}
 
-	/**
-		@todo Does this Work?
-	*/
-	public function __destruct()
-	{
-		//$p = $this->path();
-		//if (is_file($p)) {
-		//	die("unlink($p);");
-		//}
-	}
-
-	// @deprecated use MIME::*Extension
-	//public function kind()
-	//{
-	//	switch ($this->mime()) {
-	//	case 'image/png':
-	//		$r = 'png';
-	//		break;
-	//	case 'image/jpeg':
-	//		$r = 'jpg';
-	//		break;
-	//	case 'application/octet-stream'; // Office <=2007
-	//	case 'application/zip': // Office 2010
-	//		$type = exec("file -b $x 2>&1");
-	//		switch ($this->extn()) {
-	//		case 'doc':
-	//		case 'docx':
-	//			$r = 'doc';
-	//			break;
-	//		}
-	//		break;
-	//	}
-    //
-	//	$this->_kind = $r;
-    //
-	//	return $this->_kind;
-    //
-	//}
-
 	public function getFile()
 	{
 		return $this->_file;
@@ -159,6 +120,7 @@ class Source
 				$source = $_FILES['source']['tmp_name'];
 				$source_name = basename($_FILES['source']['name']);
 				$source_type = 'file';
+
 			}
 
 			if (!empty($_POST['source_name'])) {
@@ -199,8 +161,6 @@ class Source
 				$source_name = parse_url($source, PHP_URL_PATH);
 			}
 			$source_name = basename($source_name);
-			// $this->_name = basename($_FILES['source']['name']);
-			// $this->_mime = $_FILES['source']['type'];
 
 			$tmpfile = sprintf('%s/source.tmp', $this->_path);
 			$this->_fetch($source, $tmpfile);
@@ -220,13 +180,14 @@ class Source
 
 		$this->_file = sprintf('%s/%s.%s', $this->_path, $this->_name, $this->_extn);
 
-		//switch ($source_type) {
-		//case 'file':
-		move_uploaded_file($source, $this->_file);
-		//	break;
-		//case 'link':
-		//	$this->_fetch($source, $this->_file);
-		//}
+		switch ($source_type) {
+		case 'file':
+			move_uploaded_file($source, $this->_file);
+			break;
+		case 'link':
+			rename($source, $this->_file);
+			break;
+		}
 
 		$data = print_r($this, true);
 		$file = sprintf('%s/source.obj', $this->_path);
