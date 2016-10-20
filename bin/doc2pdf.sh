@@ -1,6 +1,14 @@
 #!/bin/bash -x
 #
 # Converts a DOCX file to PDF
+# 
+# @param $1 Source path of doc file.
+# @param $2 Path directory of where the new file is to be put.
+# The output file will be written to: $2/source.pdf
+#
+# Example: 	./bin/doc2pdf.sh in.doc /home/me/my_awesome_document/
+#			./bin/doc2pdf.sh in.doc $(pwd)
+#
 
 set -o errexit
 set -o nounset
@@ -25,7 +33,7 @@ cp "$source_path" ./source.docx
 
 #
 # Always outputs to a pdf file with the same name
-/usr/lib64/libreoffice/program/soffice.bin \
+/usr/bin/soffice \
 	--headless \
 	--invisible \
 	--nocrashreport \
