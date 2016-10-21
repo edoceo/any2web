@@ -48,7 +48,6 @@ case "$3" in
 
 	/usr/bin/convert \
 		"$source" \
-		-alpha "transparent" \
 		-strip \
 		-interlace "PNG" \
 		"$output"
