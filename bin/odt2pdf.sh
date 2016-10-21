@@ -1,14 +1,14 @@
 #!/bin/bash -x
 #
-# Converts a PPT and PPTX file to PDF
+# Converts an ODT file to PDF
 #
 
 set -o errexit
 set -o nounset
 
-#export HOME="/var/www/any2web.io/var"
-f=$(readlink -f $0)
+f=$(readlink -f "$0")
 d=$(dirname $(dirname "$f"))
+
 export HOME="$d/var"
 
 source_path=$(readlink -f "$1")
@@ -25,7 +25,7 @@ cd "$tmp"
 
 trap "cd /; rm -fr $tmp" EXIT
 
-cp "$source_path" ./source.pptx
+cp "$source_path" ./source.odt
 
 #
 # Always outputs to a pdf file with the same name
@@ -40,6 +40,6 @@ soffice \
 	--norestore \
 	--convert-to pdf \
 	--outdir . \
-	source.pptx
+	source.odt
 
 mv source.pdf "$target_path"
