@@ -49,7 +49,7 @@ case 'application/vnd.oasis.opendocument.text': // odt
 	// to PNGs
 	// to ZIP
 
-	// $cmd = sprintf('odt2pdf.sh %s %s', APP_ROOT, escapeshellarg($S->_path), escapeshellarg($out));
+	$cmd = sprintf('odt2pdf.sh %s %s', escapeshellarg($S->_path), escapeshellarg($out));
 	// $log = sprintf('%s/var/odt2pdf.log', APP_ROOT);
 	$log = sprintf('%s/odt2pdf.log', $J->getPath());
 	_cmd_log($cmd, $log);
