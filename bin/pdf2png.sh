@@ -9,7 +9,10 @@
 set -o errexit
 set -o nounset
 
-export HOME="/var/www/any2web.io/var"
+#export HOME="/var/www/any2web.io/var"
+f=$(readlink -f $0)
+d=$(dirname $(dirname "$f"))
+export HOME="$d/var"
 
 source="$1"
 output="$2"
