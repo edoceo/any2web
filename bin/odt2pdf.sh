@@ -1,6 +1,6 @@
 #!/bin/bash -x
 #
-# Converts a PPT and PPTX file to PDF
+# Converts an ODT file to PDF
 #
 
 set -o errexit
@@ -25,7 +25,7 @@ cd "$tmp"
 
 trap "cd /; rm -fr $tmp" EXIT
 
-cp "$source_path" ./source.pptx
+cp "$source_path" ./source.odt
 
 #
 # Always outputs to a pdf file with the same name
@@ -40,6 +40,6 @@ soffice \
 	--norestore \
 	--convert-to pdf \
 	--outdir . \
-	source.pptx
+	source.odt
 
 mv source.pdf "$target_path"

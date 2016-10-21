@@ -79,8 +79,8 @@ case "$format" in
 	for page_idx in $(seq 1 $page_max)
 	do
 		page_idx=$(printf "%03u" $page_idx)
-		mv "output-$page_idx.png" "$output-$page_idx.png"
-		zip --junk-paths --no-dir-entries "output.zip" "$output-$page_idx.png"
+		mv "output-$page_idx.png" "$output-p$page_idx.png"
+		zip --junk-paths --no-dir-entries "output.zip" "$output-p$page_idx.png"
 	done
 	mv "output.zip" "$output.zip"
 	;;
