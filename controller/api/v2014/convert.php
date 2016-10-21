@@ -151,7 +151,7 @@ case 'application/msword':
 	_cmd_log($cmd, $log);
 
 	if (!is_file($pdf_file)) {
-		throw new Exception('Failed to create PDF Format');
+		throw new \Exception('Failed to create PDF Format');
 	}
 
 	// _send_file($o);
