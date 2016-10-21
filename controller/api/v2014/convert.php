@@ -141,6 +141,7 @@ case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': // xls
 	break;
 
 case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': // docx
+case 'application/msword':
 
 	$src_file = $S->getFile();
 	$pdf_file = sprintf('%s/%s.pdf', $J->getPath(), $S->getName());
@@ -150,7 +151,7 @@ case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 
 	_cmd_log($cmd, $log);
 
 	if (!is_file($pdf_file)) {
-		throw new Exception('Failed to create PDF Format');
+		throw new \Exception('Failed to create PDF Format');
 	}
 
 	// _send_file($o);

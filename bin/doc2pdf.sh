@@ -13,7 +13,10 @@
 set -o errexit
 set -o nounset
 
-export HOME="/var/www/any2web.io/var"
+#export HOME="/var/www/any2web.io/var"
+f=$(readlink -f $0)
+d=$(dirname $(dirname "$f"))
+export HOME="$d/var"
 
 source_path=$(readlink -f "$1")
 target_path="$2"
@@ -33,7 +36,7 @@ cp "$source_path" ./source.docx
 
 #
 # Always outputs to a pdf file with the same name
-/usr/bin/soffice \
+soffice \
 	--headless \
 	--invisible \
 	--nocrashreport \
