@@ -25,7 +25,7 @@ cp "$source_path" ./work.pptx
 
 #
 # Always outputs to a pdf file with the same name
-/usr/lib64/libreoffice/program/soffice.bin \
+soffice \
 	--headless \
 	--invisible \
 	--nocrashreport \

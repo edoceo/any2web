@@ -33,7 +33,7 @@ cp "$source_path" ./source.docx
 
 #
 # Always outputs to a pdf file with the same name
-/usr/bin/soffice \
+soffice \
 	--headless \
 	--invisible \
 	--nocrashreport \
