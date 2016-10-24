@@ -58,9 +58,28 @@ case 'application/vnd.oasis.opendocument.text': // odt
 
 	switch ($O->mime) {
 	case 'application/pdf':
+		$O->file = $pdf_file;
+		_send_output( $O );
 		// _send_output($O);
 		break;
 	case 'image/png':
+
+		$png_file = sprintf( '%s/%s.png', $J->getPath(), $S->getName() );
+		$cmd = array();
+		$cmd[] = 'pdf2png.sh';
+		$cmd[] = escapeshellarg( $pdf_file );
+		$cmd[] = escapeshellarg( $png_file );
+
+		$log = sprintf( '%s/pdf2png.log', $J->getPath() );
+		_cmd_log( $cmd, $log );
+
+		$O->file = preg_replace( '/\.pdf$/', '.zip', $pdf_file );
+		$O->mime = 'application/zip';
+
+		if ( is_file( $O->file ) )
+		{
+			_send_output( $O );
+		}
 
 		// _pdf2png($S, $O);
 		// _png2zip($S, $O);
