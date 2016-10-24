@@ -304,6 +304,7 @@ case 'text/x-shellscript':
 
 default:
 
+	syslog( LOG_WARNING, "[Any2Web] E#215 MIME not handled. MIME was " . $S->mime() );
 	_bail(500, 'E#215: MIME type not handled: ' . $S->mime());
 
 }
