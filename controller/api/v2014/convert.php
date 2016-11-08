@@ -48,17 +48,38 @@ case 'application/vnd.oasis.opendocument.text': // odt
 	// to PDF
 	// to PNGs
 	// to ZIP
+	$src_file = $S->getFile();
+	$pdf_file = sprintf( '%s/%s.pdf', $J->getPath(), $S->getName() );
 
-	// $cmd = sprintf('odt2pdf.sh %s %s', APP_ROOT, escapeshellarg($S->_path), escapeshellarg($out));
+	$cmd = sprintf('odt2pdf.sh %s %s', escapeshellarg($src_file), escapeshellarg($pdf_file));
 	// $log = sprintf('%s/var/odt2pdf.log', APP_ROOT);
 	$log = sprintf('%s/odt2pdf.log', $J->getPath());
 	_cmd_log($cmd, $log);
 
 	switch ($O->mime) {
 	case 'application/pdf':
+		$O->file = $pdf_file;
+		_send_output( $O );
 		// _send_output($O);
 		break;
 	case 'image/png':
+
+		$png_file = sprintf( '%s/%s.png', $J->getPath(), $S->getName() );
+		$cmd = array();
+		$cmd[] = 'pdf2png.sh';
+		$cmd[] = escapeshellarg( $pdf_file );
+		$cmd[] = escapeshellarg( $png_file );
+
+		$log = sprintf( '%s/pdf2png.log', $J->getPath() );
+		_cmd_log( $cmd, $log );
+
+		$O->file = preg_replace( '/\.pdf$/', '.zip', $pdf_file );
+		$O->mime = 'application/zip';
+
+		if ( is_file( $O->file ) )
+		{
+			_send_output( $O );
+		}
 
 		// _pdf2png($S, $O);
 		// _png2zip($S, $O);
@@ -141,6 +162,7 @@ case 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': // xls
 	break;
 
 case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': // docx
+case 'application/msword':
 
 	$src_file = $S->getFile();
 	$pdf_file = sprintf('%s/%s.pdf', $J->getPath(), $S->getName());
@@ -150,7 +172,7 @@ case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 
 	_cmd_log($cmd, $log);
 
 	if (!is_file($pdf_file)) {
-		throw new Exception('Failed to create PDF Format');
+		throw new \Exception('Failed to create PDF Format');
 	}
 
 	// _send_file($o);
@@ -282,6 +304,7 @@ case 'text/x-shellscript':
 
 default:
 
+	syslog( LOG_WARNING, "[Any2Web] E#215 MIME not handled. MIME was " . $S->mime() );
 	_bail(500, 'E#215: MIME type not handled: ' . $S->mime());
 
 }
